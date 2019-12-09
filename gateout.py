@@ -10,6 +10,8 @@ import serial
 import time
 from argparse import ArgumentParser
 
+# > python .\gateout.py -H 0.0.0.0 -P COM17 -WP 8080 -br 9600
+
 logging.basicConfig(filename='gateout.log', filemode='a+', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 DEFINITION_OUTPUT = ['!OUT1ONOK|','!OUT1OFFOK|','!TRIG1OK|']
@@ -105,13 +107,19 @@ def task_connect():
 				response_list.append(serial_decode)
 	except Exception as e :
 		print(e)
+		try :
+			print("Close connection and reconnecting device in port "+args.port)
+			ser.close()
+		except Exception as e_reconnect :
+			print(e_reconnect)
+			logging.error(str(e_reconnect))
 		logging.error(str(e))
 
 	try :
 		bytesToRead = ser.inWaiting()
 		serial_response += ser.read(bytesToRead).decode()
 	except Exception as e :
-		logging.error(str(e))
+		pass
 
 # check connection in every 2 seconds
 timer_reconnect = QtCore.QTimer()
